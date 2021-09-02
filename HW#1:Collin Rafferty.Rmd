@@ -1,0 +1,133 @@
+---
+title: 'Homework #1'
+author: "Collin Rafferty"
+date: "9/2/2021"
+output: html_document
+---
+
+
+1. What are the names of the people in your study group?
+
+Kim Fai Chan, Nicholas Esposito, Tanmany Thomas, Kyle Zhou, and Joaquin 
+Sanchez Gomez
+
+2. Work on the Hawkes stats review - you must complete the diagnostic test by end of the day Friday Sept 24.
+
+I have been making good progress on the Hawkes stats review. 
+
+3. This is due before class During class on Thursday Sept 2, we’ll do experiments on sequences of random numbers. I gave out dice in first class, for you to play with sanding, filing, heating, drilling, gluing, squeezing or whatever to see if you can adjust which numbers come up. Before class, you should have done about 20 experiments where you roll the dice and record whether the result was a 6 or not.
+
+I attempted to use sandpaper to change the weight distribution of the dice, so they would be more
+likely to land on 6 when rolled. Unfortunately, I had little success in this endeavor;  please see attached Excel table.
+
+4. Open up R (on laptop or cloud). Replicate the commands given in the lecture notes R Basics for Lecture 1 to do some simple stats on the PUMS-NY data. Those notes request that you find average ages for men and women after accounting for the top-coding. Tell me something else interesting, that you learned from the data, for example about educational attainments in different neighborhoods in the city. Are there surprises for you?
+
+```{r}
+ x <- 1:50
+w <- 1 + sqrt(x)/2
+example1 <- data.frame(x=x, y= x + rnorm(x)*w)
+attach(example1)
+
+fm <- lm(y ~ x)
+summary(fm)
+
+lrf <- lowess(x, y)
+plot(x, y)
+lines(x, lrf$y)
+abline(0, 1, lty=3)
+abline(coef(fm))
+
+detach()
+
+getwd
+setwd("~/Downloads/acs2017_ny ")
+load("acs2017_ny_data.RData")
+#glimpse(acs2017_ny) try this later
+acs2017_ny[1:10,1:7]
+
+attach(acs2017_ny)
+
+summary(acs2017_ny)
+
+print(NN_obs <- length(AGE))
+
+summary(AGE[female == 1])
+
+summary(AGE[!female])
+
+# average ages of men & women
+mean(AGE[female == 1])
+sd(AGE[female == 1])
+mean(AGE[!female])
+sd(AGE[!female])
+```
+
+```{r}
+
+hist(AGE[(AGE > 90)])
+
+mean(AGE[ (female == 1) & (AGE<90) ])
+
+str(as.numeric(PUMA))
+
+PUMA <- as.factor(PUMA)
+female <- as.factor(female)
+
+print(levels(female))
+educ_indx <- factor((educ_nohs + 2*educ_hs + 3*educ_somecoll + 4*educ_college + 5*educ_advdeg), levels=c(1,2,3,4,5),labels = c("No HS","HS","SmColl","Bach","Adv"))
+
+#install.packages("tidyverse")
+#install.packages("plyr")
+
+library(tidyverse)
+library(plyr)
+
+levels_n <- read.csv("PUMA_levels.csv")
+levels_orig <- levels(PUMA) 
+levels_new <- join(data.frame(levels_orig),data.frame(levels_n))
+levels(PUMA) <- levels_new$New_Level
+
+summary(female)
+summary(PUMA)
+summary(educ_indx)
+
+ddply(acs2017_ny, .(PUMA), summarize, mean = round(mean(AGE), 2), sd = round(sd(AGE), 2), n_obsv = length(PUMA))
+
+ dat_use1 <- subset(acs2017_ny,((INCWAGE > 0) & in_NYC))
+ddply(dat_use1, .(PUMA), summarize, inc90 = quantile(INCWAGE,probs = 0.9), inc10 = quantile(INCWAGE,probs = 0.1), n_obs = length(INCWAGE))
+
+table(educ_indx,female)
+xtabs(~educ_indx + female)
+prop.table(table(educ_indx,female))
+
+mean(educ_nohs[(AGE >= 25)&(AGE <= 55)])
+mean(educ_hs[(AGE >= 25)&(AGE <= 55)])
+mean(educ_somecoll[(AGE >= 25)&(AGE <= 55)])
+mean(educ_college[(AGE >= 25)&(AGE <= 55)])
+mean(educ_college[(AGE >= 25)&(AGE <= 55)])
+
+# alternatively
+
+restrict1 <- as.logical((AGE >= 25)&(AGE <= 55))
+dat_age_primeage <- subset(acs2017_ny, restrict1)
+detach()
+attach(dat_age_primeage)
+mean(educ_nohs)
+mean(educ_hs)
+mean(educ_somecoll)
+mean(educ_college) 
+mean(educ_advdeg)
+
+detach()
+
+```
+
+When I was examining the mean age by neighborhood, I found something quite interesting. I was looking at neighborhoods with the largest percentage of 65+ residents. If I was asked to guess where the neighborhoods with the largest percentage of 65+ residents were located, I would guess Manhattan and Staten Island. After examining the data, it turns out I am mostly right. There are lots of neighborhoods in these boroughs that have close to 25% of their residents 65+. In the neighborhood of Upper East Side- Carnegie Hill, it is closer to 30%. These results were not unexpected, but interesting nevertheless. 
+
+5. Differences in means can be complicated. Find the mean return on SP500 index (choose a time period). What is the mean return on days when the previous day’s return was positive? When the previous 2 days were positive? Negative? Now read about “hot hands fallacy” and tell if you think that helps investment strategy. (You might start with this tweet, and read the papers referenced.)
+
+Using the website Yahoo Finance, I calculate the mean return of the S&P 500 for a 5 day
+period (8/9/21-8/13/21) as .008%. The mean returns on days when the previous day's return was positive are positive. Take 8/12/21, for example, the mean return for that day was .003%, and then the next day, the mean return was .002%. The same logic holds for multiple days of previous positive mean returns. It is the opposite case when the two previous days' mean returns were negative. Look at the time period of 8/16/21-8/18/21; both August 16th and 17th had negative returns, and because of this, so did August 18th. I believe the "hot hand fallacy" to be very
+helpful when thinking about investment strategies. You can't look at past performance as a 
+guarantee of future performance. So, I would be wary when looking at S&P 500 past performance data.
+
