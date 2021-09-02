@@ -76,8 +76,8 @@ female <- as.factor(female)
 print(levels(female))
 educ_indx <- factor((educ_nohs + 2*educ_hs + 3*educ_somecoll + 4*educ_college + 5*educ_advdeg), levels=c(1,2,3,4,5),labels = c("No HS","HS","SmColl","Bach","Adv"))
 
-#install.packages("tidyverse")
-#install.packages("plyr")
+install.packages("tidyverse")
+install.packages("plyr")
 
 library(tidyverse)
 library(plyr)
