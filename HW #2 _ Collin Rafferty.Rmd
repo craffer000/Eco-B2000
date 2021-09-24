@@ -59,7 +59,7 @@ between Hispanic and non-Hispanic males in this field.
 
 Marginal Probabilities using Bayes’ Theorem
 
-Tad= Holds an advanced degree ; Fad= Does not Holds an advanced degree ; Y30 = younger than 30 ;O30 = older than 30 
+Tad= Holds an advanced degree ; Fad= Does not Hold an advanced degree ; Y30 = younger than 30 ;O30 = older than 30 
 P(Tad|Y30)= P(Y30|Tad)*P(Tad)/ P(Y30) = (1999/23385)*(66429/196585)/ (23385/196585)=0.2428263
  P(Fad|O30)= P(O30|Fad)*P(Fad)/ P(O30) = (21386/23385)*(130156/196585)/ (173200/196585)=0.6872401
 0.2428263+0.6872401 ≈ 1
