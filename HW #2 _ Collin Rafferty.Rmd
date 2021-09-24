@@ -36,7 +36,9 @@ right2 <- mean(as.numeric(data_new2$HHINCOME), na.rm = TRUE)+error2
 
 ```
 
-I am 95% confident that the true mean for non-Hispanic males with degrees in computer and information sciences is within the interval between $32,560 and $40,610. Likewise, I am 95% confident that the true mean for males with degrees in computer and information sciences is within the interval between $32,120 and $40,150.  
+I am 95% confident that the true mean for non-Hispanic males with degrees in computer and information sciences is within 
+the interval between $32,560 and $40,610. Likewise, I am 95% confident that the true mean for males with degrees 
+in computer and information sciences is within the interval between $32,120 and $40,150.  
 
 ```{r}
 table(data_new1$educ_advdeg, data_new1$AGE < 30)
@@ -45,7 +47,9 @@ prop.table(table(data_new1$educ_advdeg, data_new1$AGE < 30))
 prop.table(table(data_new2$educ_advdeg, data_new2$AGE < 30))
 ```
 
-In the crosstabs, I examined the percentage of Hispanic males under the age of 30 with advanced degrees in computer and information sciences compared to non-Hispanic males of the same age and educational attainment. The data showed that non-Hispanic males were .3% more likely to be under 30 with an advanced degrees. This is not a large percentage, but I believe it shows a pattern. If non-Hispanic males are more likely to get advanced degrees in this field, this will translate to them having greater salaries. These differences will cause more inequality in pay and opportunities between Hispanic and non-Hispanic males in this field.
+In the crosstabs, I examined the percentage of Hispanic males under the age of 30 with advanced degrees in computer and information sciences compared to non-Hispanic males of the same age and educational attainment. The data showed that non-Hispanic males were .3% more 
+likely to be under 30 with an advanced degrees. This is not a large percentage, but I believe it shows a pattern. If non-Hispanic males are more likely to get advanced degrees in this field, this will translate to them having greater salaries. These differences will cause
+more inequality in pay and opportunities between Hispanic and non-Hispanic males in this field.
 
 Marginal Probabilities using Bayes’ Theorem
 
@@ -54,8 +58,13 @@ P(Tad|Y30)= P(Y30|Tad)*P(Tad)/ P(Y30) = (1999/23385)*(66429/196585)/ (23385/1965
  P(Fad|O30)= P(O30|Fad)*P(Fad)/ P(O30) = (21386/23385)*(130156/196585)/ (173200/196585)=0.6872401
 0.2428263+0.6872401 ≈ 1
 
-The crosstabs I constructed was mutually exclusive and exhaustive. First, if someone had an advanced degree, they cannot be grouped into the column of people who don't have advanced degrees. That just wouldn't make sense. The same goes for age. Second, the crosstab is exhaustive because one event always occurs: the person has or does not have the advanced degree; the person is under the age of 30 or over the age of 30. 
+The crosstabs I constructed was mutually exclusive and exhaustive. First, if someone had an advanced degree, they cannot be grouped into the
+column of people who don't have advanced degrees. That just wouldn't make sense. The same goes for age. Second, the crosstab is 
+exhaustive because one event always occurs: the person has or does not have the advanced degree; the person is under the age of 30 or over the age of 30. 
 
-A potential confounding variable that could be affecting the results I received is citizenship status. For example, if a Hispanic person grew up in a different country speaking Spanish and then came to the U.S. for university or employment, they may not have as good a grasp of English as someone born and raised in the U.S. does. This could explain some of the salaries and advance degree attainment differences. 
+A potential confounding variable that could be affecting the results I received is citizenship status. For example, if a Hispanic person grew up in a different country speaking Spanish and then came to the U.S. for university or employment, 
+they may not have as good a grasp of English as someone born and raised in the U.S. does. This could explain some of the salaries and advance degree attainment differences. 
 
-If I could examine additional evidence beyond this dataset, I would like to look at a breakdown of salaries difference between Hispanic vs. non-Hispanic males by different companies. I would posit that companies founded relatively recently, last 30 years, like Google, Amazon, and others, the salary disparity would be far less pronounced than in older tech companies - IBM and others. I think this would be because of the ingrained biases these older companies have. If I were right about this disparity, it would make a persuasive case on why things need to change. 
+If I could examine additional evidence beyond this dataset, I would like to look at a breakdown of salaries difference between Hispanic vs. non-Hispanic males by different companies. I would posit that companies founded relatively recently, last 30 years, like Google, Amazon, and others, 
+the salary disparity would be far less pronounced than in older tech companies - IBM and others. I think this would be because of the ingrained 
+biases these older companies have. If I were right about this disparity, it would make a persuasive case on why things need to change. 
