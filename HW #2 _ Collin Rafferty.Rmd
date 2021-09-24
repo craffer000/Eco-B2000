@@ -39,10 +39,6 @@ right1 <- mean(as.numeric(data_new1$HHINCOME), na.rm = TRUE)+error1
 left2 <- mean(as.numeric(data_new2$HHINCOME), na.rm = TRUE)-error2
 right2 <- mean(as.numeric(data_new2$HHINCOME), na.rm = TRUE)+error2
 ```
-```{r}
-
-```
-
 I am 95% confident that the true mean for non-Hispanic males with degrees in computer and information sciences is within 
 the interval between $32,560 and $40,610. Likewise, I am 95% confident that the true mean for males with degrees 
 in computer and information sciences is within the interval between $32,120 and $40,150.  
