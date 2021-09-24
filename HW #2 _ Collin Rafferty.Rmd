@@ -22,7 +22,7 @@ Going over these basic stats raised an interesting question: how does the averag
 income of a person of Hispanic origin compare to the larger population surveyed? In a study from the 
 Economic Policy Institute, Mora and Davila found college-educated Hispanic males made, on average, 14.9% 
 less per hour than college-educated white males. Due to the finite time I had to analyze this data, I decided to look 
-at how the average total household income of Hispanic males with degrees in computer and information sciences compares to the overall male 
+at how the average total household income of Hispanic males with degrees in computer and information sciences compared to the overall male 
 population with degrees in computer and information sciences.
 
 ```{r}
