@@ -67,7 +67,7 @@ It is interesting that close to 67% of the population we are looking at live in 
 or Queens(33%). While only about 16% live in Manhattan, and the other roughly 17% live in the Bronx(11%) and Staten Island(6%). 
 Intuitively this makes sense when you think about it. 
 
-For the 2nd Iteration of the knn-classification, I restricted the age to 30 or less because I think most delivery workers are in this age range. 
+For the 2nd Iteration of the knn-classification, I restricted the age to 30 or younger because I think most delivery workers are in this age range. 
 
 ```{r}
 is.na(AGE) <- which(AGE<= 30)
@@ -102,7 +102,7 @@ print(c(indx,correct_rate))
 It is interesting how the second iteration flipped the percentage of Queens(now 34%) and Brooklyn(now 34%). 
 Manhattan's percentage dropped to 15%, and the other two boroughs stayed about the same. 
 
-For the 3rd and final iteration of the knn-classification, I restricted rent to $1000 to see how this affected the geographic distribution. 
+For the 3rd and final iteration of the knn-classification, I restricted rent to $1000 or less to see how this affected the geographic distribution. 
 
 ```{r}
 is.na(RENT) <- which(RENT<= 1000)
