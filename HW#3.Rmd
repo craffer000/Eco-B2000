@@ -13,13 +13,11 @@ attach(dat_NYC)
 borough_f <- factor((in_Bronx + 2*in_Manhattan + 3*in_StatenI + 4*in_Brooklyn + 5*in_Queens), levels=c(1,2,3,4,5),labels = c("Bronx","Manhattan","Staten Island","Brooklyn","Queens"))
 norm_varb <- function(X_in) {(X_in - min(X_in, na.rm = TRUE))/
 ( max(X_in, na.rm = TRUE) - min(X_in, na.rm = TRUE) )}
-
 is.na(HHINCOME) <- which(HHINCOME <= 30000)
 is.na(FAMSIZE) <- which(FAMSIZE >=5)
 norm_HHINCOME <- norm_varb(HHINCOME)
 norm_FAMSIZE <- norm_varb(FAMSIZE)
 ```
-
 ```{r}
 # Creation of the dataframe
 data_use_prelim <- data.frame(norm_HHINCOME,norm_FAMSIZE)
@@ -42,12 +40,11 @@ prop.table(summary(cl_data))
 summary(train_data)
 require(class)
 for (indx in seq(1, 9, by= 2)) {
-  pred_borough <- knn(train_data, test_data, cl_data, k = indx, l = 0, prob = FALSE, use.all = TRUE)
+pred_borough <- knn(train_data, test_data, cl_data, k = indx, l = 0, prob = FALSE, use.all = TRUE)
 num_correct_labels <- sum(pred_borough == true_data)
 correct_rate <- num_correct_labels/length(true_data)
 print(c(indx,correct_rate))}
 ```
-
 ```{r}
 # Simple linear regression
 cl_data_n <- as.numeric(cl_data)
@@ -62,12 +59,13 @@ mean(y_hat[cl_data_n == 3])
 mean(y_hat[cl_data_n == 4])
 mean(y_hat[cl_data_n == 5])
 ```
-It is interesting that close to 67% of the population we are looking at live in either Brooklyn(34%) or Queens(33%). While only about 16% live in Manhattan, and the other roughly 17% live in the Bronx(11%) and Staten Island(6%). Intuitively this makes sense when you think about it. 
+It is interesting that close to 67% of the population we are looking at live in either Brooklyn(34%)
+or Queens(33%). While only about 16% live in Manhattan, and the other roughly 17% live in the Bronx(11%) and Staten Island(6%). 
+Intuitively this makes sense when you think about it. 
 
 For the 2nd Iteration of the knn-classification, I restricted the age to 30 or less because I think most delivery workers are in this age range. 
 
 ```{r}
-
 is.na(AGE) <- which(AGE<= 30)
 norm_AGE <- norm_varb(AGE)
 
@@ -97,13 +95,12 @@ num_correct_labels1 <- sum(pred_borough == true_data1)
 correct_rate1 <- num_correct_labels1/length(true_data1)
 print(c(indx,correct_rate))
 ```
-
-It is interesting how the second iteration flipped the percentage of Queens(now 34%) and Brooklyn(now 34%). Manhattan's percentage dropped to 15%, and the other two boroughs stayed about the same. 
+It is interesting how the second iteration flipped the percentage of Queens(now 34%) and Brooklyn(now 34%). 
+Manhattan's percentage dropped to 15%, and the other two boroughs stayed about the same. 
 
 For the 3rd and final iteration of the knn-classification, I restricted rent to $1000 to see how this affected the geographic distribution. 
 
 ```{r}
-
 is.na(RENT) <- which(RENT<= 1000)
 norm_RENT <- norm_varb(RENT)
 
@@ -132,12 +129,14 @@ pred_borough <- knn(train_data, test_data1, cl_data1, k = indx, l = 0, prob = FA
 num_correct_labels2 <- sum(pred_borough == true_data2)
 correct_rate2 <- num_correct_labels2/length(true_data2)
 print(c(indx,correct_rate))
-
 ```
 
-The 3rd iteration had a pretty significant impact on the geographic distribution of the subset population. First, Brooklyn went up to 36%, while Queens went down to 30%. Manhattan increased to 20%. The Bronx stayed at about the same level, but Staten island fell all the way to .02%. 
+The 3rd iteration had a pretty significant impact on the geographic distribution of the subset population. First, Brooklyn went up to 36%, 
+while Queens went down to 30%. Manhattan increased to 20%. The Bronx stayed at about the same level, but Staten island fell all the way to .02%. 
 
-I think the tradeoff between the better classification of the training data and the worsening of the model's ability to classify the testing data occurs around a ratio of 90/10. If you devote more than 90% of the data set to train the model, the model will become biased towards the particular dataset. This will make it hard for the model to become generalized when it is looking at unseen data. 
+I think the tradeoff between the better classification of the training data and the worsening of the model's ability to classify 
+the testing data occurs around a ratio of 90/10. If you devote more than 90% of the data set to train the model, the model 
+will become biased towards the particular dataset. This will make it hard for the model to become generalized when it is looking at unseen data. 
 
 I think this analysis provided a good amount of helpful insight into how one of the less unprivileged groups in New York City is geographically distributed. 
 
