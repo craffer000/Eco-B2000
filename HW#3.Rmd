@@ -134,7 +134,6 @@ num_correct_labels2 <- sum(pred_borough == true_data2)
 correct_rate2 <- num_correct_labels2/length(true_data2)
 print(c(indx,correct_rate))
 ```
-
 The 3rd iteration had a pretty significant impact on the geographic distribution of the subset population. First, Brooklyn went up to 36%, 
 while Queens went down to 30%. Manhattan increased to 20%. The Bronx stayed at about the same level, but Staten island fell all the way to .02%. 
 
@@ -142,5 +141,5 @@ I think the tradeoff between the better classification of the training data and 
 the testing data occurs around a ratio of 90/10. If you devote more than 90% of the data set to train the model, the model 
 will become biased towards the particular dataset. This will make it hard for the model to become generalized when it is looking at unseen data. 
 
-I think this analysis provided a good amount of helpful insight into how one of the most unprivileged groups in New York City is geographically distributed. 
+I think the 3 iterations, which were ran, provided a good amount of helpful insight into how one of the most unprivileged groups in New York City is geographically distributed. 
 
