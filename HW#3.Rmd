@@ -142,5 +142,5 @@ I think the tradeoff between the better classification of the training data and 
 the testing data occurs around a ratio of 90/10. If you devote more than 90% of the data set to train the model, the model 
 will become biased towards the particular dataset. This will make it hard for the model to become generalized when it is looking at unseen data. 
 
-I think this analysis provided a good amount of helpful insight into how one of the less unprivileged groups in New York City is geographically distributed. 
+I think this analysis provided a good amount of helpful insight into how one of the most unprivileged groups in New York City is geographically distributed. 
 
