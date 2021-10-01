@@ -4,7 +4,11 @@ author: "Collin Rafferty"
 date: "9/30/2021"
 output: html_document
 ---
-Based on the insights I gleaned from last week's homework, I decided to look at how the Hispanic population of New York is spread out across the boroughs. I decided to look at Hispanic people who did not have any form of American citizenship and whose household makes less than $30,000 annually. Also, whose family sizes are larger than 5 members. The inhumane treatment of delivery workers has been all over the news over the past few weeks, so I believe this analysis will give some helpful insights into the geographic distribution of some of these workers. 
+Based on the insights I gleaned from last week's homework, I decided to look at how the Hispanic population of New York is spread out 
+across the boroughs. I decided to look at Hispanic people who did not have any form of American citizenship and whose 
+household makes less than $30,000 annually. Also, whose family sizes are larger than 5 members. The inhumane treatment of delivery 
+workers has been all over the news over the past few weeks, so I believe this analysis will give some helpful insights into the 
+geographic distribution of some of these workers. 
 
 ```{r}
 # k-nn classification
