@@ -1,0 +1,126 @@
+---
+title: 'Homework #4'
+author: "Collin Rafferty"
+date: "10/7/2021"
+output: html_document
+---
+
+My group thought it would be interesting to examine the average wages of people holding business degrees in the later stages of their career- the people we examined were between the ages of 50 and 65 years. We examined how variables like gender, age, and race affected the average wage someone earned.
+
+```{r}
+# Creation of subgroup 
+load("acs2017_ny_data.RData")
+attach(acs2017_ny)
+use_varb <- (AGE >= 50) & (AGE <=65) & (LABFORCE == 2) & (WKSWORK2 > 4) & (UHRSWORK >= 40) & (DEGFIELD== "Business")
+dat_use <- subset(acs2017_ny,use_varb) 
+detach()
+attach(dat_use)
+
+# Testing for obvious errors in the subgroup
+summary(AGE)
+summary(DEGFIELD== "Business")
+summary(female)
+summary(Hispanic)
+summary(AfAm)
+summary(Asian)
+summary(race_oth)
+```
+
+```{r}
+#Linear Regression Model
+model_temp1 <- lm(INCWAGE ~ AGE + female+ Hispanic+ Asian+ AfAm + Asian + Amindian + race_oth) 
+
+require(stargazer)
+stargazer(model_temp1, type = "text")
+
+#Confidence interval calculations
+AGEl <--301.099-163.689  
+AGEr <--301.099+163.689 
+femalel <--22291.850-1413.806
+femaler <--22291.850+1413.806
+Hispanicl <--24464.040-2653.239
+Hispanicr <--24464.040+2653.239
+Asianl <- -9671.716-3178.407
+Asianr <- -9671.716+3178.407
+AfAml <--26408.360-2305.169
+AfAmr <--26408.360+2305.169
+Amindianl <--13521.030-13546.530
+Amindianr <--13521.030+13546.530
+race_othtl <--12728.930-2994.731
+race_othtr <--12728.930+2994.731
+
+require(AER)
+
+# Plotting the subset
+NNobs <- length(INCWAGE)
+set.seed(12345) 
+graph_obs <- (runif(NNobs) < 0.1) 
+dat_graph <-subset(dat_use,graph_obs)  
+
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2),  data = dat_graph)
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,80000), data = dat_graph)
+
+# Changing line to fit regression
+to_be_predicted2 <- data.frame(AGE = 50:65, female = 1, AfAm = 1, Asian = 0, Amindian = 0, race_oth = 0, Hispanic = 1, DEGFIELD="Business")
+to_be_predicted2$yhat <- predict(model_temp1, newdata = to_be_predicted2)
+
+lines(yhat ~ AGE, data = to_be_predicted2)
+
+# Plotting different X variables
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), data = dat_graph,xlab= "Age (years)", ylab="Wage ($)")
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,120000), data = dat_graph,xlab= "Age (years)", ylab="Wage ($)")
+
+# Changing line to fit regression
+to_be_predicted3 <- data.frame(AGE = 50:65, female = 0, AfAm = 1, Asian = 0, Amindian = 0, race_oth = 0, Hispanic = 1)
+to_be_predicted3$yhat <- predict(model_temp1, newdata = to_be_predicted3)
+
+lines(yhat ~ AGE, data = to_be_predicted3)
+
+```
+
+The summary the model depicts gives quite revealing insights into the relationship between wage and the variables outlined in the model above. To begin with the variable of age, the null hypothesis associated with this variable( and all the others in the model) states the coefficient associated with the variable of age would be zero. The alternative hypothesis associated with age(and all the other variables in the model) states the coefficient would not be equal to zero. Or, put more simply, there is a relationship between age(the independent variable) and wage(the dependent variable). The value of the coefficient for age is about $-301, which means an increase in age of a year will cause a decrease to wages of $301. The coefficient is a non-zero number, so we reject the null. The P-value for age was 0.06586, which was not statistically significant but did weakly support the rejection of the null. The t-stat for age was -1.839458, which confirms the rejection of the null because it is a non-zero number. The confidence interval for age states we 95% confident that age's effect on the population wage lies between $-464.788 and $-137.41.
+
+Similarly, the coefficients for all the other variables tested in the model were non-zero numbers, so we can reject the null hypotheses for all variables because they all, in varying degrees, have an effect on wage. The P-values for all of the variables, excluding American Indian, were below p<.01, which shows a highly statistically significant impact of these variables on wages. The p-value of American Indian was 0.31823, however, which was not statistically significant. The t-stat calculations are shown above, and all are non-zero numbers confirming a relationship exists between wage and each of these variables. The t-stat for the variable of female was the largest at about -16, while the t-stat for American Indian was the smallest at -1. This shines some interesting insight on the data: out of any of the variables test, the average wage for the variable of female has the most evidence for being significantly different than the average wage. The confidence intervals for all of the variables tested in the model are shown above. We 95% confident the true wage for each of the variables lies between these values.
+
+The constant coefficient in the table would be the expected mean value of wage if all of the X variables were zero. It is saying that a person would make about $116,000 if they were male, zero years old, and not any of the races tested in this model. This does not make any sense. 
+
+```{r}
+#Model without heteroskedasticity-consistent standard errors
+summary(model_temp1)
+#Model with heteroskedasticity-consistent standard errors
+summary(coeftest(model_temp1,vcovHC))
+```
+ Heteroskedasticity-consistent standard errors would affect the model by changing the standard errors of the variables test, and because of that, also their t-stats and p-values. It is important to include these errors in the model, however, because homoscedasticity can't always be counted on to be present in the model. 
+
+```{r}
+model_temp1 <- lm(INCWAGE ~ AGE + female + AfAm + Asian + Amindian + Hispanic + race_oth )
+summary(model_temp1)
+
+# Effect of log on the coefficients of the model
+detach(dat_use)
+dat_noZeroWage <- subset(dat_use,(INCWAGE > 0))
+attach(dat_noZeroWage)
+
+model_temp2 <- lm(log(INCWAGE) ~ AGE + female+ Hispanic+ Asian+ AfAm + Asian + Amindian + race_oth) 
+summary(model_temp2)
+```
+
+```{r}
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,80000), data = dat_graph, xlab= "Age (years)", ylab="Wage ($)")
+
+to_be_predicted2 <- data.frame(AGE = 50:65, female = 1, AfAm = 1, Asian = 0, Amindian = 0, race_oth = 0, Hispanic = 1, DEGFIELD="Business")
+to_be_predicted2$yhat <- predict(model_temp1, newdata = to_be_predicted2)
+
+lines(yhat ~ AGE, data = to_be_predicted2)
+
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,80000), data = dat_noZeroWage, xlab= "Age (years)", ylab="Wage ($)")
+
+to_be_predicted2 <- data.frame(AGE = 50:65, female = 1, AfAm = 1, Asian = 0, Amindian = 0, race_oth = 0, Hispanic = 1, DEGFIELD="Business")
+to_be_predicted2$yhat <- predict(model_temp1, newdata = to_be_predicted2)
+
+lines(yhat ~ AGE, data = to_be_predicted2)
+```
+
+By comparing the two plots, we can see how the variable of wage would be affected by a logarithmic transformation. This transformation makes the data more normal(less skewed). It also increases the linearity between wage and the independent variables tested in the model.
+
+Often the wage disparity between whites and minorities groups is discussed, but much less often, the wage disparity that exists among minorities is discussed. We believe our results help to shed light on this topic. 
