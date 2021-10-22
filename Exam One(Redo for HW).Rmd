@@ -1,0 +1,168 @@
+---
+title: "Exam One(Redo for HW)"
+author: "Collin Rafferty"
+date: "10/22/2021"
+output: pdf_document
+
+__Question One:__   
+   
+  $$
+  H_0: P_A-P_B=0\\                   
+  H_A:  P_A-P_B≠ 0
+  $$ 
+Where P_A is the proportion of people with at least some college in the Northeastern
+and Western regions of the U.S. that have been vaccinated, P_B is the proportion of people with a high school diploma in the Midwestern and Southern regions of the U.S. that have been vaccinated.
+ $$
+  P_A \; Estimate = \frac{23,363}{25,907}= 90.18\% 
+ \quad P_B \; Estimate= \frac{3,478}{4,678}= 74.35\% 
+ $$
+  $$SE= \sqrt{\frac{\hat{P_A}(1-\hat{P_A})}{n_1}+\frac{\hat{P_B}(1-\hat{P_B})}{n_2}}=\sqrt{\frac{.9018(1-.9018)}{25,907}+\frac{.7435(1-.7435)}{4,678}}= .009$$
+$$t-stat = \frac{\bar{X}}{SE}=\frac{.9018-.7435}{.009}= 17.58889$$
+
+I chose to use a .05 significance level. This means the results are significant at p < .05, and the p-value is < .00001, so the results are highly statistically significant. 
+This means we succeeded in rejecting the null and showing sufficient evidence there is a statistically significant difference between the vaccination rates of the two samples.
+$$ Confidence\; Interval:\; (.9018-.7435±.009)= (.1493,.1676)$$
+We are 95% confident that the average difference between the vaccination rate of sample A and sample B is between 14.93% and 16.73%
+
+__Question Two:__           
+                    $$
+                    H_0: P_A-P_B=0\\                   
+                    H_A:  P_A-P_B≠ 0
+                    $$
+ P_A is the proportion of males with an associate degree or less who have been vaccinated, and P_B is the proportion of people who identify as transgender or other and have a bachelor's degree or great and have been vaccinated.          
+  $$
+  P_A \; Estimate = \frac{8,486}{10,290}= 82.45\% 
+ \quad P_B \; Estimate= \frac{313}{389}= 80.46\% 
+ $$
+ $$SE= \sqrt{\frac{\hat{P_A}(1-\hat{P_A})}{n_1}+\frac{\hat{P_B}(1-\hat{P_B})}{n_2}}=\sqrt{\frac{.8245(1-.8245)}{10,290}+\frac{.8046(1-.8046)}{389}}= .0201$$
+ $$t-stat = \frac{\bar{X}}{SE}=\frac{.8245-.8046}{.0201}= .99$$
+I chose to use a .10 significance level. This means the results are significant at p < .10, and the p-value is .322197, so the results are not statistically significant. 
+This means we failed to reject the null hypothesis, which means there was not sufficient evidence to conclude the vaccination rate between these two groups was statistically significant. 
+$$ Confidence\; Interval:\; (.8245-.8046±.0210)= (-.0011,.0409)$$
+  We are 95% confident that the average difference between the vaccination rate of sample A and sample B is between -.11% and 4.09% 
+
+These were not expected results. I thought because of their educational attainment levels, sample A would have a much higher vaccination rate than sample B. One explanation for this disparity may be the difference in the sizes of the samples. Sample A is only about 4% the size of sample B
+
+__Question Three:__   
+
+__A)__ 
+```{r}
+load("/cloud/project/Household_Pulse_data.RData")
+
+#Creation of Subgroup
+attach(Household_Pulse_data)
+use_varb <- ((RRACE=="White") |(RRACE=="Black")) & (INCOME== "HH income $75 - 99.9") & (RHISPANIC== "Not Hispanic") & ((EEDUC=="adv deg") | (EEDUC=="bach deg"))
+sub1 <- subset(Household_Pulse_data,use_varb) 
+detach(Household_Pulse_data)  
+attach(sub1)
+
+# Summary Statistics 
+summary(sub1)
+
+round(prop.table(table(RRACE=="White", ANXIOUS)),2)
+round(prop.table(table(RRACE=="Black", ANXIOUS)),2)
+```
+The subgroup I created is revealing because it looks at how upper-middle-class college-educated whites have coped with the pandemic compared to upper-middle-class college-educated African Americans. If you look at the proportion tables of how the anxious levels differ between the two groups, it is very eye-opening. For example, 43% of African Americans in this subgroup reported feeling no anxiety over the past two weeks compared to 43% of whites that reported feeling anxiety over the past two weeks. In the very next factor level, however, these two groups' anxiety levels flip. Much of the pandemic pernicious effects disproportionally affected the poor and underrepresented, but it is also important to remember that it has had a profound impact on every level of society. I think my subgroup helps to show that. 
+
+__B)__
+       I thought it would be interesting to look how the percentage of people with private health insurance differs between the subgroup, and the larger sample.              
+    
+   $$
+                 H_0: P_A=P_B\\                   
+                 H_A:  P_A≠ P_B
+  $$ 
+Where P_A is the proportion of people in the subgroup who have private health insurance, and P_B is the proportion of people in the greater sample that has private health insurance. 
+                 
+```{r}
+summary(sub1$PRIVHLTH)
+summary(Household_Pulse_data$PRIVHLTH)
+```
+                 
+              
+   $$
+  P_A \; Estimate = \frac{5,420}{5,996}= 90.39\% 
+ \quad P_B \; Estimate= \frac{46,869}{69,114}= 67.81\% 
+                 $$
+                 $$SE= \sqrt{\frac{\hat{P_A}(1-\hat{P_A})}{n_1}+\frac{\hat{P_B}(1-\hat{P_B})}{n_2}}=\sqrt{\frac{.9039(1-.9039)}{5,996}+\frac{.6781(1-.6781)}{69,114}}= .0042$$
+                 $$t-stat = \frac{\bar{X}}{SE}=\frac{.9039-.6781}{.0042}= 53.76 $$
+I chose to use a .05 significance level. This means the results are significant at p < .05, and the p-value is < .00001, so the results are highly statistically significant. 
+This means we succeeded in rejecting the null and showing sufficient evidence there is a statistically significant difference between the percentage of people with private health insurance in the subgroup compared to the larger sample. 
+$$ Confidence\; Interval:\; (.9036-.6781±.0042)= (.2216,.23)$$
+We are 95% confident that the average difference between the people with private health insurance in the subgroup and the larger sample is between 22.16% and 23%. 
+
+__C)__
+```{r}
+require(tidyverse)
+
+HH1 <- Household_Pulse_data%>%mutate(
+  INCOME5=as.numeric(INCOME),INCOME5=case_when(INCOME5==5~NA_integer_,TRUE~as.integer(INCOME5)))
+
+HH2 <- Household_Pulse_data%>%mutate(
+  GEN1=as.numeric(GENID_DESCRIBE),GEN1=case_when(GEN1==1~NA_integer_,TRUE~as.integer(GEN1)))
+
+HH3 <- Household_Pulse_data%>%mutate(VAX1=as.numeric(RECVDVACC), VAX1=case_when(VAX1==1~NA_integer_,TRUE~as.integer(VAX1)))
+
+HH4 <- Household_Pulse_data%>%mutate(ANX2=as.numeric(ANXIOUS), ANX2=case_when(ANX2==2~NA_integer_,TRUE~as.integer(ANX2)))
+
+HH5 <- Household_Pulse_data%>%mutate(EEDUC3=as.numeric(EEDUC), EEDUC3=case_when(EEDUC3==3~NA_integer_,TRUE~as.integer(EEDUC3)))
+
+norm_varb <- function(X_in) {(X_in - min(X_in, na.rm = TRUE))/( max(X_in, na.rm = TRUE) - min(X_in, na.rm = TRUE) )}
+
+norm_INCOME5 <- norm_varb(HH1$INCOME5)
+norm_GEN1 <- norm_varb(HH2$GEN1)
+norm_VAX1<- norm_varb(HH3$VAX1)
+norm_ANX2 <- norm_varb(HH4$ANX2)
+norm_EEDUC3<- norm_varb(HH5$EEDUC3)
+
+
+data_use <- data.frame(norm_INCOME5,norm_GEN1,norm_VAX1,norm_ANX2, norm_EEDUC3)
+good_obs_data_use <- complete.cases(data_use,PUBHLTH)
+dat_use <- subset(data_use,good_obs_data_use)
+y_use <- subset(PUBHLTH,good_obs_data_use)
+
+
+set.seed(12345)
+NN_obs <- sum(good_obs_data_use == 1)
+select1 <- (runif(NN_obs) < 0.8)
+
+train_data <- subset(dat_use,select1)
+test_data <- subset(dat_use,(!select1))
+cl_data <- y_use[select1]
+true_data <- y_use[!select1]
+
+summary(cl_data)
+prop.table(summary(cl_data))
+summary(train_data)
+
+require(class)
+for (indx in seq(1, 9, by= 2)) {
+  pred_PUBHLTH <- knn(train_data, test_data, cl_data, k = indx, l = 0, prob = FALSE, use.all = TRUE)}
+
+num_correct_labels <- sum(pred_PUBHLTH  == true_data)
+correct_rate <- num_correct_labels/length(true_data)
+print(c(indx,correct_rate))
+
+detach()
+```
+
+With the predictor variables I included in the classifier, it had an accuracy of 70% of determining if a person has public health insurance or not. 70% is not terrible, but it could be improved. If I were to do another iteration, I would include the variables of ANYWORK,RSNNOWRKRV, and KINDWORK because if a person is a government employee, unemployed, or retired, they would be more likely to have public health insurance. 
+
+__D)__
+```{r}
+attach(Household_Pulse_data)
+
+reg1<- lm(as.numeric(Num_kids_Pub_School) ~ INCOME+EEDUC+CHLDCARE+Works_onsite)
+
+require(stargazer)
+stargazer(reg1,type = "text", title = "Table 1: Regression Results",out = "table1.txt")
+
+require(ggplot2)
+require(ggthemes)
+
+Graph1 <-ggplot(Household_Pulse_data, aes(y=Num_kids_Pub_School, x= EEDUC, group=1))+geom_point()+geom_smooth(method=lm)+labs(x="Educational Attainment",y="# of Kids in Public School", title = "Graph One for Reg1")
+
+Graph2 <-ggplot(Household_Pulse_data, aes(y=Num_kids_Pub_School, x= INCOME, group=1))+geom_point()+geom_smooth(method=lm)+labs(x="Income($1000s)", y="# of Kids in Public School", title = "Graph Two for Reg1") + scale_x_discrete(labels = c('<25','25-34.49','35-49.9', '50-74.9','75-99.9','100-149','150-199','>$200' ))
+
+gridExtra::grid.arrange(Graph1,Graph2)
+```
+ The regression provides some revealing insights about the data. For example, the number of children in public is negatively correlated with educational attainment level after a person graduates high school. A person with an advanced degree has -.412 fewer children in public school than someone who does not have an advanced degree. Of course, you can't have a proportion of a child, but it helps to show the picture. This result was to be expected, but what was interesting was how income affects the number of children a person has in public school. The coefficients of income are negative until 75K than positive for the rest of the income levels. Intuitively, you would think the opposite would be true: as income increases, the number of children a person has in public school decreases because these high earners have fewer children or send their children to private school.
