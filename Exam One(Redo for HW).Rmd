@@ -99,7 +99,8 @@ __B)__
      H_A:  P_A≠ P_B
   $$ 
 
-Where P_A is the proportion of people in the subgroup who have private health insurance, and P_B is the proportion of people in the greater sample that has private health insurance. 
+Where P_A is the proportion of people in the subgroup who have private health insurance, and P_B is the proportion of people in 
+the greater sample that has private health insurance. 
                  
 ```{r}
 summary(sub1$PRIVHLTH)
