@@ -1,0 +1,132 @@
+---
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+
+title: 'HW \# 5' author: "Collin Rafferty" date: "10/27/2021" output: pdf_document
+
+```{r}
+load("/cloud/project/acs2017_ny_data.RData")
+attach(acs2017_ny)
+use_varb <- (AGE >= 20) & (AGE <= 60) & (LABFORCE == 2) & (WKSWORK2 > 4) & (UHRSWORK >= 40) & (AfAm== 1) & (educ_college== 1) 
+dat_use <- subset(acs2017_ny,use_varb) 
+detach()
+summary(dat_use$AfAm)
+summary(dat_use$AGE)
+summary(dat_use$edu_college)
+```
+
+```{r}
+attach(dat_use)
+lm1 <- lm((INCWAGE ~ AGE + I(AGE^2)+I(AGE^3)+I(AGE^5) + 
+  AfAm + female + educ_college+veteran+SSMC+NCHILD+in_Brooklyn+in_Manhattan))
+summary(lm1)
+```
+
+```{r}
+require(ggplot2)
+require(gridExtra)
+
+qq1 <- qplot(AGE, INCWAGE,ylim = c(0,150000), data=dat_use)
+g1 <-qq1 + geom_smooth(method="lm", formula = y ~ x, se=FALSE)+ ggtitle("Graph One")
+
+qq2 <- qplot(AGE, INCWAGE,ylim = c(0,150000), xlab = "I(AGE^2)", data=dat_use)
+g2<- qq2 + geom_smooth(method="lm", 
+formula = y ~ poly(x, 2, raw=TRUE),color="red", se=FALSE) +ggtitle("Graph Two")
+
+qq3 <- qplot(AGE, INCWAGE,ylim = c(0,150000), xlab = "I(AGE^3)", data=dat_use)
+g3<- qq3 +geom_smooth(method="lm", 
+formula = y ~ poly(x, 3, raw=TRUE),color="green", se=FALSE)+ ggtitle("Graph Three")
+
+qq4 <- qplot(AGE, INCWAGE,ylim = c(0,150000),xlab = "I(AGE^5)", data=dat_use)
+g4<- qq4 +geom_smooth(method="lm", 
+formula = y ~ poly(x, 5, raw=TRUE),color="yellow", se=FALSE)+ ggtitle("Graph Four")
+
+grid.arrange(g1,g2,g3,g4)
+```
+
+Some relevant cases of predicted wage from model:
+
+$$\hat{Wage}_1 = \beta_0+\beta_1SSMC+\beta_2In-Brooklyn+\beta_3Veteran\\$$ 
+$$ \hat{Wage}_1= 0 + 1(-6,836)+1(-2,027)+1(-1,051)=$ -9,914 $$
+
+A college-educated African American male or female who served in the military lives in Brooklyn and is part of a same-sex couple makes on average \$9,914 less than a college-educated African American male or female who did not serve in the military, who doesn't live in Brooklyn and is not part of a same-sex couple.
+
+$$\hat{Wage}_2 = \beta_0+\beta_1NChild+\beta_2In-Manhattan+\beta_3Female\$$ $$\hat{Wage}_2= 0 + 1(2,115)+1(28,485)+0(-4,295)=$30,600 $$
+
+A college-educated African American male who lives in Manhattan and has one of her own children in the household makes on average \$30,600 more than a college-educated African American female who doesn't live in Manhattan and does not have one of her own children in the household.
+
+```{r}
+lm2 <- lm(INCWAGE ~ I(AGE^2)+I(AGE^3)+I(AGE^4)+I(AGE^5))
+anova(lm1,lm2)
+```
+
+Looking at the p-value, we can see these higher-order polynomials terms are jointly highly significant, so we can reject the null. These terms do affect the regression.
+
+```{r}
+qq5 <- qplot(log(AGE^3), INCWAGE,ylim = c(0,150000), data=dat_use)
+g5 <-qq5 + geom_smooth(method="lm", formula = y ~ x, se=FALSE) +ggtitle("Graph Five")
+
+qq6 <- qplot(log(AGE), INCWAGE,ylim = c(0,150000), xlab = "I(AGE^3)", data=dat_use)
+g6<- qq6 +geom_smooth(method="lm", 
+formula = y ~ poly(x, 3, raw=TRUE),color="green", se=FALSE) +ggtitle("Graph Six")
+
+```
+
+If you put educ_college into a regression, it splits the data set into 2 groups: those with college degrees and those individuals without college degrees. However, division creates two very homogeneous groups because it does not distinguish between different degrees. If you put both educ_college and educ_advdeg into a regression, it would create 3 groups. As you subset the data further, it gets less and less homogeneous.
+
+```{r}
+qq7 <- qplot(educ_college, INCWAGE,ylim = c(0,150000), xlab = "I(educ_college^3)", data=dat_use)
+g7<- qq7 +geom_smooth(method="lm", 
+formula = y ~ poly(x, 3, raw=TRUE), se=FALSE) +ggtitle("Graph Seven")
+
+qq8 <- qplot(female, INCWAGE,ylim = c(0,150000), xlab = "I(female^4)", data=dat_use)
+g8<- qq8 +geom_smooth(method="lm", 
+formula = y ~ poly(x, 4, raw=TRUE), se=FALSE) +ggtitle("Graph Eight")
+
+grid.arrange(g7,g8)
+```
+
+The only values a dummy variable can take is 0 or 1, so by cubing the variable, you change nothing; O\^3 is still 0, and 1\^3 is still 1. That is why the graphs make above are not that helpful.
+
+```{r}
+detach()
+dat_noZeroWage <- subset(dat_use,(INCWAGE > 0))
+attach(dat_noZeroWage)
+lm3 <- lm((log(INCWAGE) ~ AGE + I(AGE^2)+I(AGE^3)+I(AGE^5) + 
+  AfAm + female + educ_college+ +veteran+SSMC+NCHILD+in_Brooklyn+ in_Manhattan))
+
+summary(lm3)
+```
+
+Predicted values using log wage:
+
+$$ ln(\hat{Wage}_3) = \beta_0+\beta_1SSMC+\beta_2In-Brooklyn+\beta_3Female\\$$ $$ ln(\hat{Wage}_3) = 0 +1(-.06)+1(-.003)+1(-.06)=.-123$$
+
+A college-educated African American female who lives in Brooklyn and is part of a same-sex couple makes on average 12.3% less than a college-educated African American male who doesn't live in Brooklyn and is part of a heterosexual couple.
+
+```{r}
+lm4 <-lm(INCWAGE ~ AGE + I(AGE^2) + female + I(female*AGE)+ I(female*(AGE^2)+ veteran+I(veteran*AGE)))
+summary(lm4)
+
+lm5 <-lm(INCWAGE ~ AGE + female + I(female*AGE))
+summary(lm4)
+```
+
+$$
+\hat{U}_f= 41,481.5 +700.5Age-16,393.6female+262.1AGE*female\\
+\hat{U}_f= 25,087+9,962.6AGE\\
+\hat{U}_m= 41,481.5 +700.5AGE-16,393.6female+262.1AGE*female\\
+\hat{U}_m=41,481.5 +700.5AGE\\
+$$
+
+```{r}
+ plot(AGE[female==1],INCWAGE[female==1], col="red", ylim = c(0,150000), xlab="Gender", ylab = "INCWage",main="Wage vs Gender")
+points(AGE[female==0],INCWAGE[female==0], col="blue",pch=16)
+legend("topleft",legend = c("female", "male"), col = c("red","blue"), pch = c(1, 16), bty = "n")
+abline(a=25087.9,b=962.6, col="red", lwd=3)
+abline(a=41481.5,b=700.5, col="blue", lwd=3)
+```
