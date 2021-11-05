@@ -1,0 +1,100 @@
+---
+title: 'Homework #6'
+author: "Collin Rafferty"
+date: "11/4/2021"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r}
+load("/cloud/project/Household_Pulse_data.RData")
+
+Household_Pulse_data$vaxx <- (Household_Pulse_data$RECVDVACC == "yes got vaxx")
+is.na(Household_Pulse_data$vaxx) <- which(Household_Pulse_data$RECVDVACC == "NA") 
+
+table(Household_Pulse_data$vaxx,Household_Pulse_data$SEXUAL_ORIENTATION)
+table(Household_Pulse_data$vaxx,Household_Pulse_data$EEDUC)
+table(Household_Pulse_data$vaxx,Household_Pulse_data$GENID_DESCRIBE)
+
+pick_use1 <- (Household_Pulse_data$REGION == "South") 
+dat_use1 <- subset(Household_Pulse_data, pick_use1)
+
+dat_use1$RECVDVACC <- droplevels(dat_use1$RECVDVACC) 
+
+model_logit1 <- glm(vaxx ~ TENURE+ GENID_DESCRIBE+ EEDUC + MS+ PUBHLTH + PRIVHLTH + SEXUAL_ORIENTATION +MS:SEXUAL_ORIENTATION+ GENID_DESCRIBE:PUBHLTH+EEDUC:PUBHLTH, family = binomial, data = dat_use1)
+
+require(stargazer)
+stargazer(model_logit1, type = "text", title = "Regression Output for Logit Model One")
+require(tinytex)
+```
+
+The estimates were generally in line with what I thought they would be.The most statistically significant coefficients were also what I expected- educational attainment, private and public health insurance.  However, one thing I found interesting about the estimates was how marital status affected the likelihood of someone being vaccinated. Looking at the interaction term estimate for someone who is married and identifies as gay or lesbian, it is .000029 times more likely to be vaccinated than a someone in non-same-sex couple. If you examine the estimates for never-married gay and lesbian individuals, the probability of these individuals being vaccinated is far higher than their heterosexual counterparts.  
+$$
+PV_1= {f}(1*\beta_0 +1*\beta_1Sexual_{straight}+1*\beta_2EEDUC_{adv-deg}+ 
+1*\beta_3MS_{married}+1*\beta_4GENID_{male})\\
+$$
+$$
+PV_1=f(3.009-.958+2.333-.461-.890)\\
+$$
+$$
+PV_1=(\frac{1}{1+e^-{(3.009-.958+2.333-.461-.890)}})= .954
+$$
+
+$$
+PV_2 = {f}(1*\beta_0 +1*\beta_1Sexual_{gay or lesbian}+1*\beta_2EEDUC_{some-hs}+ 1*\beta_3MS_{never}+1*\beta_4GENID_{female})\\
+$$
+$$
+PV_2=f(3.009+11.426+.248-1.417-1.382)\\
+$$
+$$
+PV_2=(\frac{1}{1+e^-{(3.009+11.426+.248-1.417-1.382)}})= .999
+$$
+The logit probability that someone who lives in the south and identifies as male, straight, married, and has an advanced degree is vaccinated is 95.4%. The logit probability that someone who lives in the south and identifies as female, gay or lesbian, never married, and has only some high school is vaccinated is 99.9%. This is not what I expected. However, the largest determinant of vaccination status was sexual orientation. An individual who identifies as gay or lesbian is far more likely to be vaccinated than other sexual orientations—this factor compensated for the fact that vaccination status and educational attainment level are positively correlated. 
+```{r}
+require(ggplot2)
+require(gridExtra)
+gg1<- qplot(PUBHLTH, vaxx, data=dat_use1, geom=c("boxplot", "jitter"))+ggtitle("Graph One")
+gg2<- qplot(PRIVHLTH, vaxx, data=dat_use1, geom=c("boxplot", "jitter"))+ggtitle("Graph Two")
+grid.arrange(gg1,gg2)
+```
+
+I know these graphs are not that helpful, but they do provide some useful insight when examined more closely. If you look at the NA rows on both graphs, you can see the number of the NAs shown differ substantially between the two groups. It looks like there are more NAs for the group of people with private insurance. I wonder why that is? 
+
+_Probit Model_
+```{r}
+regn_probit1 <- glm(vaxx ~ TENURE+ GENID_DESCRIBE+ EEDUC + MS+ PUBHLTH + PRIVHLTH + SEXUAL_ORIENTATION +MS:SEXUAL_ORIENTATION+ GENID_DESCRIBE:PUBHLTH+EEDUC:PUBHLTH, family = binomial(link="probit"), data = dat_use1)
+stargazer(regn_probit1,type="text", title = "Regression Output for Probit Model")
+```
+
+The signs and patterns of significance for the probit model were very similar to those of the logit model. The importance of sexual orientation as a determinant of vaccination, however, diminished. 
+$$
+PV_3= {f}(1*\beta_0 +1*\beta_1Sexual_{straight}+1*\beta_2EEDUC_{adv-deg}+ 
+1*\beta_3MS_{married}+1*\beta_4GENID_{male})\\
+$$
+$$
+PV_4 = {f}(1*\beta_0 +1*\beta_1Sexual_{gay or lesbian}+1*\beta_2EEDUC_{some-hs}+ 1*\beta_3MS_{never}+1*\beta_4GENID_{female})\\
+$$
+```{r}
+PV_3 <- pnorm(1.615-.476+1.165-.207-.406)
+PV_4 <- pnorm(1.615+3.357+.135-.759-.705)
+```
+The probit probability that someone who lives in the south and identifies as male, straight, married, and has an advanced degree is vaccinated is 95.4%. The logit probability that someone who lives in the south and identifies as female, gay or lesbian, never married, and has only some high school is vaccinated is 99.9%. These probabilities are identical to the logit probabilities obtained earlier. If you were not to round the probabilities to 3 digits, you would see a difference between the logit and probit estimates. Even so, they are incredibly similar to one another. 
+
+_Splitting the Data into Training and Testing Sets_
+```{r}
+dat_use2<- dat_use1
+set.seed(12345)
+NN <- length(dat_use2$vaxx)
+restrict_1 <- (runif(NN) < 0.3) 
+summary(restrict_1)
+dat_train <- subset(dat_use2, restrict_1)
+dat_test <- subset(dat_use2, !restrict_1)
+pred_vals <- predict(model_logit1, type = "response")
+pred_model_logit1 <- (pred_vals > 0.5)
+summary(pred_model_logit1)
+pred_vals1 <- predict(regn_probit1, type = "response")
+pred_regn_probit1 <- (pred_vals > 0.5)
+summary(pred_regn_probit1)
+```
+They appear to have the same predictive power, but I don't think that is right. So I may have to standardize some of the variables or change the dataset in some other way. 
