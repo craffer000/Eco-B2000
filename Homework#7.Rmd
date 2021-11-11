@@ -1,0 +1,107 @@
+---
+title: 'Homework #7'
+author: "Collin Rafferty"
+date: "11/10/2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+```{r}
+load("/cloud/project/Household_Pulse_data.RData")
+
+Household_Pulse_data$vaxx <- (Household_Pulse_data$RECVDVACC == "yes got vaxx")
+is.na(Household_Pulse_data$vaxx) <- which(Household_Pulse_data$RECVDVACC == "NA") 
+
+# Like last week, I decided to set the NAs equal to zero. 
+
+require(gtsummary)
+tb1 <- data.frame(Col = Household_Pulse_data$vaxx,
+ Row = Household_Pulse_data$EEDUC)
+tbl_cross(tb1, row=Row, col=Col, percent="row")
+
+tb2 <- data.frame(Col = Household_Pulse_data$vaxx,
+ Row = Household_Pulse_data$RRACE)
+tbl_cross(tb2, row=Row, col=Col, percent="row")
+
+tb3 <- data.frame(Col = Household_Pulse_data$vaxx,
+ Row = Household_Pulse_data$REGION)
+tbl_cross(tb3, row=Row, col=Col, percent="row")
+
+pick_use1 <- (Household_Pulse_data$REGION == "South" & Household_Pulse_data$GENID_DESCRIBE== "male" & Household_Pulse_data$RRACE== "White")
+dat_use1 <- subset(Household_Pulse_data, pick_use1)
+```
+
+I thought it would be interesting to look at a subset of only white males living in the south because, in lab 6, I found them to have the lowest probability of being vaccinated out of the subset I was looking at.
+
+```{r}
+d_marstat <- data.frame(model.matrix(~ dat_use1$MS))
+d_pubhlth<- data.frame(model.matrix(~ dat_use1$PUBHLTH))
+d_x <- data.frame(model.matrix(~ dat_use1$SEXUAL_ORIENTATION))
+d_income <- data.frame(model.matrix(~ dat_use1$INCOME))
+d_educ <- data.frame(model.matrix(~ dat_use1$EEDUC))
+d_vaxx <- data.frame(model.matrix(~ dat_use1$vaxx))
+
+dat_for_analysis_sub <- data.frame(
+  d_vaxx[,2],
+  d_educ[!is.na(dat_use1$vaxx),2:7],
+  d_marstat[!is.na(dat_use1$vaxx),2:6],
+  d_income[!is.na(dat_use1$vaxx),2:9],
+  d_pubhlth[!is.na(dat_use1$vaxx),2:3],
+  d_x[!is.na(dat_use1$vaxx),2:6])
+
+names(dat_for_analysis_sub) <- sub("dat_use1.","",names(dat_for_analysis_sub))
+names(dat_for_analysis_sub)[1] <- "vaxx"
+
+summary(d_vaxx)
+summary(d_educ)
+```
+
+```{r}
+require("standardize")
+set.seed(12345)
+NN <- length(dat_for_analysis_sub$vaxx)
+restrict_1 <- (runif(NN) < 0.3) 
+summary(restrict_1)
+dat_train <- subset(dat_for_analysis_sub, restrict_1)
+dat_test <- subset(dat_for_analysis_sub, !restrict_1)
+
+summary(dat_test$INCOMEHH.income..200k..)
+
+sobj <- standardize(vaxx ~  EEDUCsome.hs + EEDUCHS.diploma + EEDUCsome.coll + EEDUCassoc.deg + EEDUCbach.deg + EEDUCadv.deg + MSmarried + MSwidowed + MSdivorced + MSseparated +PUBHLTHno.public.health.ins+ MSnever+INCOMEHH.income.less.than..25k+INCOMEHH.income..25k....34.9k+INCOMEHH.income..35k...49.9+ INCOMEHH.income..50k...74.9+INCOMEHH.income..75...99.9+INCOMEHH.income..100k...149+INCOMEHH.income..150...199+ SEXUAL_ORIENTATIONbisexual+ SEXUAL_ORIENTATIONdont.know+SEXUAL_ORIENTATIONgay.or.lesbian+SEXUAL_ORIENTATIONsomething.else+SEXUAL_ORIENTATIONstraight, dat_train, family = binomial)
+
+summary(sobj$data)
+s_dat_test <- predict(sobj, dat_test)
+```
+After running a summary on incomes over 200K, I found its Min=Max=0, so I dropped it from the model. I didn't want it to cause an error in the model. 
+```{r}
+require(stargazer)
+model_lpm1 <- lm(sobj$formula, data = sobj$data)
+stargazer::stargazer(model_lpm1, type="text", title = "Model_lmp1")
+pred_vals_lpm <- predict(model_lpm1, s_dat_test)
+pred_model_lpm1 <- (pred_vals_lpm > mean(pred_vals_lpm))
+table(pred = pred_model_lpm1, true = dat_test$vaxx)
+# logit 
+model_logit1 <- glm(sobj$formula, family = binomial, data = sobj$data)
+stargazer::stargazer(model_logit1, type="text", title = "Model_logit1")
+pred_vals <- predict(model_logit1, s_dat_test, type = "response")
+pred_model_logit1 <- (pred_vals > 0.5)
+table(pred = pred_model_logit1, true = dat_test$vaxx)
+pred_model_logit2 <- (pred_vals > 0.3)
+table(pred = pred_model_logit2, true = dat_test$vaxx)
+pred_model_logit3 <- (pred_vals > 0.8)
+table(pred = pred_model_logit3, true = dat_test$vaxx)
+
+cm1 <- as.table(matrix(c(6, 5, 504, 4278), nrow = 2, byrow = TRUE))
+fourfoldplot(cm1, color = c("#CC6666", "#99CC99"),
+conf.level = 0, margin = 1, main = "Confusion Matrix for Model_logit1 ")
+
+cm2 <- as.table(matrix(c(0, 1, 510, 4283), nrow = 2, byrow = TRUE))
+fourfoldplot(cm2, color = c("#CC6666", "#99CC99"),
+conf.level = 0, margin = 1, main = "Confusion Matrix for Model_logit2 ")
+
+cm3 <- as.table(matrix(c(210, 597, 300, 3686), nrow = 2, byrow = TRUE))
+fourfoldplot(cm3, color = c("#CC6666", "#99CC99"),
+conf.level = 0, margin = 1, main = "Confusion Matrix for Model_logit3 ")
+
+```
+The tables and graphs show as the model's cutoff value is reduced, the model's predictive accuracy increases to a point. For example, when the cutoff value was set to pred_vals > .8, the model made 4283 true positive predictions, but when the cutoff value was set to pred_vals > .5, the model only predicted 3686 true positives. Both false negative and false positive also increase substantially from model one to model three. However, there is a certain point when the cutoff value is too low, and the model's predictive accuracy declines. For example, looking at model two, where the cutoff was set to pred_vals >.3, it predicted 4278 true positives. This is five fewer true positives than model one, in which the cutoff value was set to pred_vals >.5. 
